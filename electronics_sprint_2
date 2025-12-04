@@ -12,3 +12,4 @@
   the other GPIO pins can also output analog signals, but they either output a voltage corresponding to the max voltage(5V) if value given in >0 , 
   else if value is 0, it outputs a 0 volt.
 
+this is the end of the second assignment.
