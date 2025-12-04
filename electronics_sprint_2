@@ -2,7 +2,7 @@
 2. https://www.tinkercad.com/things/ia6ydf99nnQ-breathing-led?sharecode=-M-nxQpX-0Kqwc61ZylzKon5IWaL1pFg22hFGawbJLQ 
 3. https://www.tinkercad.com/things/iGM7uCQMfk5-servo-pot-?sharecode=W3G2E5rZ-C8O7DMuyfoxI0JKdrVqG3VEUqFAWjYQOuU
 4. https://www.tinkercad.com/things/9m4VMCrKEBI-fake-communication?sharecode=-ofbXxe_Sbwh8uxGMbh_eIBAq5q4j7AFjp8m9eIo1Sg
-5.
+5. https://www.tinkercad.com/things/d6xuGinZCHJ-lcd-distance-detector?sharecode=eMneRxS1moqgb-qMw3imuzqKpHqSr0fsfn8-Yz0UiuU
 6.ADC is an electronic device that converts continuous Analog signals into digital signals(binary data), 
   it does so by mapping voltages to values from 0 to 1023(in the case of 10 bit ADC like in arduino). 
   In Arduino Uno R3, Analog input pins (A0 to A5) function like ADC.
@@ -11,3 +11,4 @@
   In arduino Uno R3 the GPIO pins 3,5,6,9,10,11 (the ones with the ~ sign before them) can function like a DAC by using PWM. 
   the other GPIO pins can also output analog signals, but they either output a voltage corresponding to the max voltage(5V) if value given in >0 , 
   else if value is 0, it outputs a 0 volt.
+
