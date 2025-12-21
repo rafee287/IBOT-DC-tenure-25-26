@@ -34,8 +34,12 @@ def pencil_sketch(image_path, output_path):
 
     # Save result
     cv2.imwrite(output_path, side_by_side)
-    print(f"Saved pencil sketch to {output_path}")
 
+    #display result 
+    cv2.imshow(output_path,side_by_side)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    print(f"Saved pencil sketch to {output_path}")
 
 # Example usage
 pencil_sketch("akaza.jpg", "akaza_sketch.jpg")
