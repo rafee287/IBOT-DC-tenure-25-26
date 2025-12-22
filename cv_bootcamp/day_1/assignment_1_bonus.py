@@ -81,8 +81,24 @@ def blur_adjust_pencil_sketch(image_path,output_path,blur,sigma):
     cv2.destroyAllWindows()
     print(f"Saved pencil sketch to {output_path}")
 
-def color_sketch(image_path,ouput_path):
-    
+    return sketch
+
+def color_sketch(image_path,output_path):
+    # loaded image
+    image = cv2.imread(image_path)
+    # gray image
+    gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
+    #pencil_sketch algo
+    inverted = 255 - gray_image
+    blurred = cv2.GaussianBlur(inverted,(21,21),0)
+    inverted_blur = 255-blurred
+    sketch = cv2.divide(gray_image,inverted_blur,scale = 256)
+    hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+    hsv[...,2] = sketch
+    out = cv2.cvtColor(hsv,cv2.COLOR_HSV2BGR)
+    cv2.imwrite(output_path,out)
+
 
 # Example usage
 pencil_sketch("akaza.jpg", "akaza_sketch.jpg")
+color_sketch("akaza.jpg", "akaza_sketch_color.jpg")
