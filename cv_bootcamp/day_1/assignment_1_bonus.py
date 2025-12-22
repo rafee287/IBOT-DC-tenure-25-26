@@ -90,9 +90,12 @@ def color_sketch(image_path,output_path):
     gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
     #pencil_sketch algo
     inverted = 255 - gray_image
-    blurred = cv2.GaussianBlur(inverted,(21,21),0)
+    blurred = cv2.GaussianBlur(inverted,(101,101),0)
     inverted_blur = 255-blurred
     sketch = cv2.divide(gray_image,inverted_blur,scale = 256)
+    cv2.imshow("sketch.jpg",sketch)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
     hsv[...,2] = sketch
     out = cv2.cvtColor(hsv,cv2.COLOR_HSV2BGR)
@@ -100,5 +103,5 @@ def color_sketch(image_path,output_path):
 
 
 # Example usage
-pencil_sketch("akaza.jpg", "akaza_sketch.jpg")
-color_sketch("akaza.jpg", "akaza_sketch_color.jpg")
+#pencil_sketch("akaza.jpg", "akaza_sketch.jpg")
+color_sketch("warrior.png", "warrior_color.jpg")
