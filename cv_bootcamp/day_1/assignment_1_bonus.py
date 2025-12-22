@@ -90,7 +90,7 @@ def color_sketch(image_path,output_path):
     gray_image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
     #pencil_sketch algo
     inverted = 255 - gray_image
-    blurred = cv2.GaussianBlur(inverted,(101,101),0)
+    blurred = cv2.GaussianBlur(inverted,(71,71),0)
     inverted_blur = 255-blurred
     sketch = cv2.divide(gray_image,inverted_blur,scale = 256)
     cv2.imshow("sketch.jpg",sketch)
@@ -104,4 +104,4 @@ def color_sketch(image_path,output_path):
 
 # Example usage
 #pencil_sketch("akaza.jpg", "akaza_sketch.jpg")
-color_sketch("warrior.png", "warrior_color.jpg")
+color_sketch("hooman.png", "hooman_color.jpg")
