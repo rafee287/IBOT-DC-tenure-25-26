@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 # Paths
-model_path = "best_model.pth"
+model_path = "best_model_2.pth"
 
 # Data augmentation for training
 train_transforms = transforms.Compose([
@@ -49,26 +49,27 @@ print(f'Validation samples: {len(val_dataset)}')
 print(f'Test samples: {len(test_dataset)}')
 
 # Load pretrained ResNet18
-model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+# model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+model = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.IMAGENET1K_V1)
 
 # Freeze all layers
 for param in model.parameters():
     param.requires_grad = False
 
 # Replace final layer for binary classification
-num_features = model.fc.in_features
-model.fc = nn.Linear(num_features, 2)
+num_features = model.classifier[3].in_features
+model.classifier[3] = nn.Linear(num_features, 2)
 
 # Move to GPU if available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)
 
 print(f'Using device: {device}')
-print(f'Training only final layer with {model.fc.in_features} input features mapped to 2 outputs')
+print(f'Training only final layer with {num_features} input features mapped to 2 outputs')
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+optimizer = optim.Adam(model.classifier[3].parameters(), lr=0.001)
 
 # Learning rate scheduler
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     # Check if model already exists
     if os.path.exists(model_path):
         print("Found saved model, loading instead of training...")
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(model_path,weights_only = True))
         model.eval()
     else:
         print("No saved model found, starting training...")
@@ -199,5 +200,3 @@ if __name__ == "__main__":
     plt.title('Confusion Matrix')
     plt.savefig('confusion_matrix.png')
     plt.show()
-
-    

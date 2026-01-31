@@ -9,8 +9,18 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
+
+def unfreeze_last_n_layers(model, n=1):
+    """Unfreeze last n residual blocks"""
+    layers = [model.layer4, model.layer3, model.layer2, model.layer1]
+    for i in range(n):
+        for param in layers[i].parameters():
+            param.requires_grad = True
+    return model
+
+
 # Paths
-model_path = "best_model.pth"
+model_path = "best_model_1.pth"
 
 # Data augmentation for training
 train_transforms = transforms.Compose([
@@ -55,6 +65,8 @@ model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 for param in model.parameters():
     param.requires_grad = False
 
+# unfreezing a few layers for fine tuning 
+model = unfreeze_last_n_layers(model,2)
 # Replace final layer for binary classification
 num_features = model.fc.in_features
 model.fc = nn.Linear(num_features, 2)
@@ -68,7 +80,13 @@ print(f'Training only final layer with {model.fc.in_features} input features map
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+# optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+
+optimizer = optim.Adam([
+    {'params': model.layer4.parameters(), 'lr': 1e-4},
+    {'params': model.layer3.parameters(), 'lr': 1e-5},
+    {'params': model.fc.parameters(), 'lr': 1e-3}
+])
 
 # Learning rate scheduler
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
@@ -147,7 +165,7 @@ if __name__ == "__main__":
             print(f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%\n')
 
         # Load best model after training
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(model_path,weights_only = True))
         model.eval()
 
     # --- Testing phase ---
@@ -200,4 +218,49 @@ if __name__ == "__main__":
     plt.savefig('confusion_matrix.png')
     plt.show()
 
-    
+    # Collect some correct and incorrect examples
+    correct_images, wrong_images = [], []
+
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+
+            for img, label, pred in zip(images, labels, predicted):
+                if len(correct_images) < 10 and pred == label:
+                    correct_images.append((img.cpu(), label.cpu(), pred.cpu()))
+                elif len(wrong_images) < 10 and pred != label:
+                    wrong_images.append((img.cpu(), label.cpu(), pred.cpu()))
+
+            # Stop once we have 10 correct + 10 wrong
+            if len(correct_images) >= 10 and len(wrong_images) >= 10:
+                break
+
+    # Helper to unnormalize for display
+    def imshow(img_tensor):
+        mean = np.array([0.485, 0.456, 0.406])
+        std = np.array([0.229, 0.224, 0.225])
+        img = img_tensor.permute(1, 2, 0).numpy()
+        img = std * img + mean
+        img = np.clip(img, 0, 1)
+        return img
+
+    # Plot 20 images in 4x5 grid
+    fig, axes = plt.subplots(4, 5, figsize=(15, 10))
+    axes = axes.flatten()
+
+    # First 10 = correct
+    for i, (img, label, pred) in enumerate(correct_images):
+        axes[i].imshow(imshow(img))
+        axes[i].set_title(f"✓ Label:{label.item()} Pred:{pred.item()}", color="green")
+        axes[i].axis("off")
+
+    # Next 10 = wrong
+    for i, (img, label, pred) in enumerate(wrong_images, start=10):
+        axes[i].imshow(imshow(img))
+        axes[i].set_title(f"✗ Label:{label.item()} Pred:{pred.item()}", color="red")
+        axes[i].axis("off")
+
+    plt.tight_layout()
+    plt.show()
