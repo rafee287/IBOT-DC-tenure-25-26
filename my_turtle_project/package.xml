@@ -1,0 +1,19 @@
+<package format="3">
+  <name>my_turtle_project</name>
+  <version>0.0.1</version>
+  <description>Custom ROS2 package to spawn and control turtles</description>
+
+  <maintainer email="your_email@example.com">Your Name</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Add these dependencies -->
+  <depend>rclpy</depend>
+  <depend>turtlesim</depend>
+  <depend>geometry_msgs</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
